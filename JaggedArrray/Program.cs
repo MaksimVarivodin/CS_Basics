@@ -1,4 +1,6 @@
-﻿namespace JaggedArrray
+﻿using System.Reflection.Metadata;
+
+namespace JaggedArrray
 {
 
     public class JaggedArray
@@ -16,11 +18,25 @@
                     Empty(ind);
                 }
             }
-
-            
-            
         }
-        
+
+        // copy-constructor
+        public JaggedArray(JaggedArray arr) {
+
+            arr.Empty();
+            Array = new int[arr.Array.Length][];
+            for (int i = 0; i < arr.Array.Length; i++)
+            {
+                Empty(i);
+                Array[i] = new int[arr.Array[i].Length];
+                for (int j = 0; j < arr.Array[i].Length; j++)
+                {
+                    Array[i][j] = arr.Array[i][j];
+                }
+            }
+
+
+        }
         // checking if array is empty
         public bool Empty()
         {
@@ -56,6 +72,70 @@
 
             }
         }
+
+        // clears the array
+        public void Clear() { 
+        
+            Array = null;   
+        
+        }
+
+        // clears the chosen line of the array
+        public void Clear(int line) {
+            Empty();
+            Empty(line);
+            Array[line] = null;
+
+        }
+
+
+
+        // checking if sum of a line is bigger than the sum of b
+        private bool Bigger(ref int[] a, ref int[] b)
+        {
+            int sum1 = 0,
+                sum2 = 0;
+            for (int i = 0; i < a.Length; i++)
+            {
+                sum1 += a[i];
+            }
+            for (int i = 0; i < b.Length; i++)
+            {
+                sum2 += b[i];
+            }
+            return sum1 > sum2;
+        }
+
+        // checking if sum of a line is smaller than the sum of b
+        private bool Smaller(ref int[] a, ref int[] b)
+        {
+            int sum1 = 0,
+                sum2 = 0;
+            for (int i = 0; i < a.Length; i++)
+            {
+                sum1 += a[i];
+            }
+            for (int i = 0; i < b.Length; i++)
+            {
+                sum2 += b[i];
+            }
+            return sum1 < sum2;
+        }
+
+        // swaps 2 lines in array
+        private void Swap(int line1, int line2)
+        {
+            if (!(Empty() || Empty(line1) || Empty(line2)))
+            {
+                int[] buffer = Array[line1];
+                Array[line1] = Array[line2];
+                Array[line2] = buffer;
+            }
+
+        }
+
+
+
 
         // checking if sum of a line is even
         public bool SumEven(int line)
@@ -168,7 +248,7 @@
             int sum = 0,
                 index = 0;
 
-            for (int i = Array.Length - 1; i >= 0; i--)
+            for (int i = 0; i < Array.Length; i++)
             {
                 int bufferSum = 0;
 
@@ -210,8 +290,8 @@
         {
             int sum = 0,
                 index = 0;
-
-            for (int i = Array.Length - 1; i >= 0; i--)
+            bool changed = false;
+            for (int i = 0; i < Array.Length; i++)
             {
                 int bufferSum = 0;
 
@@ -221,24 +301,24 @@
                     bufferSum += Array[i][j];
 
                 }
-                
-                switch (index){
-                    case 0:
+
+                if (changed)
+                {
+                    // saving maximum sum value and index
+                    if (bufferSum > sum)
+                    {
+
                         sum = bufferSum;
-                        break;
 
-                    default:
-                        // saving maximum sum value and index
-                        if (bufferSum > sum)
-                        {
-                        
-                            sum = bufferSum;
+                        index = i;
 
-                            index = i;
+                    }
 
-                        }
-                        break;                        
 
+                }
+                else {
+                    sum = bufferSum;
+                    changed = true;
                 }
 
             }
@@ -246,65 +326,259 @@
             return index;
                 
         }
-        
-        // checking if sum of a line is bigger than the sum of be
-        public bool Bigger(ref int[] a, ref int[] b) {
-            int sum1 = 0,
-                sum2 = 0; 
-            for (int i = 0; i < a.Length; i++)
-            {
-                sum1 += a[i];   
-            }
-            for (int i = 0; i < b.Length; i++)
-            {
-                sum2+= b[i];
-            }
-            return sum1 > sum2;            
-        }
-
-        // checking if sum of a line is smaller than the sum of be
-        public bool Smaller(ref int[] a, ref int[] b)
-        {
-            int sum1 = 0,
-                sum2 = 0;
-            for (int i = 0; i < a.Length; i++)
-            {
-                sum1 += a[i];
-            }
-            for (int i = 0; i < b.Length; i++)
-            {
-                sum2 += b[i];
-            }
-            return sum1 < sum2;
-        }
 
         // adds a line consisting of 0
         public ref int[] Add(int line) {
 
-            int[][] arr = new int[Array.Length + 1, ];
+            int[][] arr = new int[Array.Length + 1][];
             for (int i = 0; i < Array.Length; i++)
-            { 
-            switch i:
-                case i < line:
+            {
+                if (i < line) 
+                {
                     arr[i] = Array[i];
-                    break;
-                case i > line:
+                } 
+                else if (i > line) 
+                {
                     arr[i + 1] = Array[i];
-                    break;
-                default:
+                }
+                else 
+                {
                     var rand = new Random();
                     arr[i] = new int[rand.Next(1, 11)];
-                    break;
+                }
+                
             }
             Array = arr;
             return ref Array[line];
 
         }
+
         // deletes a line 
-        public 
+        public void Delete (int line)
+        {
+            int[][] arr = new int[Array.Length + 1][];
+            for (int i = 0; i < Array.Length; i++)
+            {
+                if (i < line)
+                {
+                    arr[i] = Array[i];
+                }
+                else if (i > line)
+                {
+                    arr[i + 1] = Array[i];
+                }
+
+            }
+            Array = arr;
+        }
+
+        // sorts the array
+        public void Sort(bool ascending)
+        {
+            for (int i = 0; i < Array.Length; i++) 
+            {
+                for (int j = Array.Length - 1; j > i; j--) 
+                {
+                    if (Bigger(ref Array[j - 1], ref Array[j])== ascending) {
+                        Swap(j - 1, j);
+                    }
+                }
+            }
+        }
+
+        // prints the array
+        public void Print()
+        {
+            for (int i = 0; i < Array.Length - 1; i++) 
+            {
+                Print(i);
+                Console.WriteLine(",");
+            }
+            Print(Array.Length - 1);
+            Console.WriteLine(".");
+        }
+
+        // prints line from array
+        public void Print(int line) 
+        {
+            Console.Write("[ ");
+            int end = Array[line].Length - 1;
+            for (int i = 0; i < end; i++) 
+            {
+                Console.Write(Array[line][i].ToString() + ", ");
+            }
+            Console.Write(Array[line][end].ToString() + " ]");
+        }
+        
+    }
+    
+    public class JaggedArrayClient {
+
+        public delegate void TwoArgumentDelegate(JaggedArray arr, int number);
+        public delegate void OneArgumentDelegate(JaggedArray arr);
+        public OneArgumentDelegate[] oneArgsFunctions;
+        public TwoArgumentDelegate[] twoArgsFunctions;
+
+        // constructor
+        public JaggedArrayClient() {
+
+            oneArgsFunctions = new OneArgumentDelegate[]
+            {
+                ShowMaximumLine,
+                DeleteMaximumLine,
+                ShowMinimumLine,
+                DeleteMinimumLine,
+                ShowAscending,
+                ShowDescending
+            };
+            twoArgsFunctions = new TwoArgumentDelegate[]
+            {
+                ShowByAspect, 
+                DeleteByAspect, 
+                Addline, 
+                FillMirror
+            };
+        
+        }
+
+        // switch to check line by the chosen aspect
+        private bool Aspect(JaggedArray arr, int number, int line) { 
+        
+            switch (number)
+            {
+                case 1:
+                    return arr.NotEvenLine(line);
+                case 2: 
+                    return arr.EvenLine(line);    
+                case 3: 
+                    return arr.NullLine(line);                    
+                case 4: 
+                    return arr.MirrorLine(line);
+                case 5: 
+                    return arr.SumEven(line);                    
+                case 6: 
+                    return arr.PositiveLine(line);
+                case 7:     
+                    return arr.NegativeLine(line);
+                default:
+                    return false;
+            }
+
+        }
+
+        
+
+
+        // shows maximum line in the array
+        public void ShowMaximumLine(JaggedArray arr) { 
+        
+            arr.Empty();
+
+            arr.Print(arr.MaximumSum());
+
+        
+        }
+
+        // deletes maximum line in the array
+        public void DeleteMaximumLine(JaggedArray arr) {
+
+            arr.Empty();
+
+            arr.Delete(arr.MaximumSum());
+
+        }
+
+
+        // shows minimum line in the array
+        public void ShowMinimumLine(JaggedArray arr) {
+
+            arr.Empty();
+
+            arr.Print(arr.MinimalSum());
+
+        }
+
+        // deletes minimum line in the array
+        public void DeleteMinimumLine(JaggedArray arr)
+        {
+
+            arr.Empty();
+
+            arr.Delete(arr.MinimalSum());
+        }
+
+
+        // shows array in the ascending order
+        public void ShowAscending(JaggedArray arr)
+        {
+            arr.Empty();
+            JaggedArray buffer = new JaggedArray(arr);
+            buffer.Sort(true);
+        }
+
+        // shows array in descending order
+        public void ShowDescending(JaggedArray arr)
+        {
+            arr.Empty();
+            JaggedArray b = new JaggedArray(arr);
+            b.Sort(false);
+        }
+
+
+
+        // prints the lines found by the chosen aspect
+        public void ShowByAspect(JaggedArray arr, int number)
+        {
+
+            arr.Empty();
+
+            for (int i = 0; i < arr.Array.Length; i++)
+                if (Aspect(arr, number, i))
+                    arr.Print(i);
+
+        }
+
+        // deletes the lines found by the chosen aspect
+        public void DeleteByAspect(JaggedArray arr, int number)
+        {
+            arr.Empty();
+
+            for (int i = 0; i < arr.Array.Length; i++)
+                if (Aspect(arr, number, i))
+                    arr.Delete(i);
+
+        }
+
+        // adds line of zeros
+        public void Addline(JaggedArray arr, int line) {
+            arr.Empty();
+
+            arr.Add(line);
+        }
+        
+        // clears existing line, fills with the same line + line vice versa
+        public void FillMirror(JaggedArray arr, int line) {
+            arr.Empty();
+
+            arr.Empty(line);
+
+            var buffer = arr.Array[line];
+            int i = 0,
+                end = buffer.Length * 2;
+            arr.Array[line] = new int[end];
+
+            for (; i < end / 2; i++) {
+                arr.Array[line][i] = buffer[i];
+            }
+            for(;i< end; i++) {
+                arr.Array[line][i] = buffer[end/2 - i];
+            }
+        }
+
     }
     internal class Program
     {
+        
         static void Main(string[] args)
         {
             JaggedArray jagged = new JaggedArray(
@@ -317,8 +591,76 @@
                                  new int[] { -1, -2, -3, -4, -5 },
                                  new int[] { 1, 2, 3, 4, 5, 4, 3, 2, 1 }
                                  });
+            string[] options = new string[] 
+            {
+                // 1 arg
+                "ShowMaximumLine",
+                "DeleteMaximumLine",
+                "ShowMinimumLine",
+                "DeleteMinimumLine",
+                "ShowAscending",
+                "ShowDescending",
+                // 2 args
+                "ShowByAspect",
+                "DeleteByAspect",
+                "Addline",
+                "FillMirror", 
+                // else
+                "Print"
+            };
 
-            Console.WriteLine("Hello, World!");
+            for(; ; )
+            {
+                Console.Clear();
+                for (int i = 0; i < options.Length; i++)
+                {
+                    Console.WriteLine((i + 1).ToString() + " -> " + options[i]);
+                }
+
+                int end = 1;
+                string buffer = Console.ReadLine();
+                end = int.Parse(buffer);
+
+                Console.Clear();
+                // ending
+                if (end == 0)
+                {
+                    Console.WriteLine("Program ended");
+                    break;
+                }
+                // working
+                else if (end <= options.Length + 1)
+                {
+                    // 1 arg methods
+                    if (end <= 6)
+                    {
+                        Console.WriteLine(options[end - 1] + ":");
+                        JaggedArrayClient cl = new JaggedArrayClient();
+                        cl.oneArgsFunctions[end - 1](jagged);
+                    }
+                    // 2 arg methods
+                    else if (6 < end && end <= 10)
+                    {
+
+                    }
+                    // no arg methods
+                    else {
+                        switch (end)
+                        {
+                            case 11:
+                                jagged.Print();
+                                break;
+                        }
+                    }                   
+                    
+                }
+                // misprints
+                else {
+                    Console.WriteLine("Wrong number");
+                }
+                // waiting
+                Console.ReadKey();
+            }
         }
     }
 }
