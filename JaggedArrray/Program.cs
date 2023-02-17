@@ -27,7 +27,7 @@ namespace JaggedArrray
             Array = new int[arr.Array.Length][];
             for (int i = 0; i < arr.Array.Length; i++)
             {
-                Empty(i);
+                arr.Empty(i);
                 Array[i] = new int[arr.Array[i].Length];
                 for (int j = 0; j < arr.Array[i].Length; j++)
                 {
@@ -59,7 +59,7 @@ namespace JaggedArrray
         // cheching if a line in an array is empty
         public bool Empty(int line) 
         {
-            if (Array == null ||  Array[line] == null)
+            if (Array == null ||  Array[line].Length == 0)
             {
 
                 throw new Exception("Array-Line Pointer Empty");
@@ -157,7 +157,8 @@ namespace JaggedArrray
         { 
             for (int i = Array[line].Length - 1; i >= 0; i--)
             {
-                if (Array[line][i] % 2 == 1)
+                int buffer = Array[line][i]< 0? Array[line][i] * (-1): Array[line][i];
+                if (buffer % 2 == 1)
                 {
                     return false;
                 }
@@ -171,7 +172,8 @@ namespace JaggedArrray
      
             for (int i = Array[line].Length - 1; i >= 0; i--)
             {
-                if (Array[line][i] % 2 == 0)
+                int buffer = Array[line][i] < 0 ? Array[line][i] * (-1) : Array[line][i];
+                if (buffer % 2 == 0)
                 {
                     return false;
                 }
@@ -413,9 +415,10 @@ namespace JaggedArrray
     }
     
     public class JaggedArrayClient {
-
+        // delegates to save and use methods by index
         public delegate void TwoArgumentDelegate(JaggedArray arr, int number);
         public delegate void OneArgumentDelegate(JaggedArray arr);
+        // arrays keeping methods of working with JaggedArray
         public OneArgumentDelegate[] oneArgsFunctions;
         public TwoArgumentDelegate[] twoArgsFunctions;
 
@@ -446,26 +449,37 @@ namespace JaggedArrray
         
             switch (number)
             {
-                case 1:
-                    return arr.NotEvenLine(line);
-                case 2: 
-                    return arr.EvenLine(line);    
-                case 3: 
-                    return arr.NullLine(line);                    
-                case 4: 
-                    return arr.MirrorLine(line);
-                case 5: 
-                    return arr.SumEven(line);                    
-                case 6: 
-                    return arr.PositiveLine(line);
-                case 7:     
-                    return arr.NegativeLine(line);
-                default:
-                    return false;
+                case 1:     return arr.NotEvenLine(line);
+                case 2:     return arr.EvenLine(line);    
+                case 3:     return arr.NullLine(line);                    
+                case 4:     return arr.MirrorLine(line);
+                case 5:     return arr.SumEven(line);                    
+                case 6:     return arr.PositiveLine(line);
+                case 7:     return arr.NegativeLine(line);
+                default:    return false;
             }
 
         }
 
+        // method which prints all of the aspects to the console
+        public void ShowAspects()
+        {
+            string[] aspects = {
+            "NotEvenLine",
+            "EvenLine",
+            "NullLine",
+            "MirrorLine",
+            "SumEven",
+            "PositiveLine",
+            "NegativeLine"
+            };
+            
+            for(int i = 0;i < aspects.Length; i++)
+            {
+                Console.WriteLine((i+ 1).ToString() + " -> " + aspects[i]);
+            }
+
+        }
         
 
 
@@ -483,9 +497,9 @@ namespace JaggedArrray
         public void DeleteMaximumLine(JaggedArray arr) {
 
             arr.Empty();
-
-            arr.Delete(arr.MaximumSum());
-
+            int line = arr.MaximumSum();
+            arr.Delete(line);
+            Console.WriteLine("Deleted line #" + (line).ToString());
         }
 
 
@@ -503,8 +517,9 @@ namespace JaggedArrray
         {
 
             arr.Empty();
-
-            arr.Delete(arr.MinimalSum());
+            int line = arr.MinimalSum();           
+            arr.Delete(line);
+            Console.WriteLine("Deleted line #" + (line).ToString());
         }
 
 
@@ -514,6 +529,7 @@ namespace JaggedArrray
             arr.Empty();
             JaggedArray buffer = new JaggedArray(arr);
             buffer.Sort(true);
+            buffer.Print();
         }
 
         // shows array in descending order
@@ -522,6 +538,7 @@ namespace JaggedArrray
             arr.Empty();
             JaggedArray b = new JaggedArray(arr);
             b.Sort(false);
+            b.Print();
         }
 
 
@@ -534,7 +551,10 @@ namespace JaggedArrray
 
             for (int i = 0; i < arr.Array.Length; i++)
                 if (Aspect(arr, number, i))
-                    arr.Print(i);
+                { 
+                    arr.Print(i); 
+                    Console.WriteLine();
+                }
 
         }
 
@@ -542,10 +562,16 @@ namespace JaggedArrray
         public void DeleteByAspect(JaggedArray arr, int number)
         {
             arr.Empty();
-
-            for (int i = 0; i < arr.Array.Length; i++)
+            int end = arr.Array.Length;
+            for (int i = 0; i < end; i++)
                 if (Aspect(arr, number, i))
+                {
                     arr.Delete(i);
+                    Console.WriteLine("Deleted line #"+ (i).ToString());
+                    i--;
+                    end--;
+                }
+
 
         }
 
@@ -581,6 +607,7 @@ namespace JaggedArrray
         
         static void Main(string[] args)
         {
+            // filling array
             JaggedArray jagged = new JaggedArray(
                                  new int[][] 
                                  {
@@ -591,6 +618,7 @@ namespace JaggedArrray
                                  new int[] { -1, -2, -3, -4, -5 },
                                  new int[] { 1, 2, 3, 4, 5, 4, 3, 2, 1 }
                                  });
+            // filling options
             string[] options = new string[] 
             {
                 // 1 arg
@@ -611,16 +639,18 @@ namespace JaggedArrray
 
             for(; ; )
             {
+                // clearing console
                 Console.Clear();
+                // showing jagged array options
                 for (int i = 0; i < options.Length; i++)
                 {
                     Console.WriteLine((i + 1).ToString() + " -> " + options[i]);
                 }
-
+                // entering option
                 int end = 1;
-                string buffer = Console.ReadLine();
+                string? buffer = Console.ReadLine();
                 end = int.Parse(buffer);
-
+                // going to method 
                 Console.Clear();
                 // ending
                 if (end == 0)
@@ -631,17 +661,26 @@ namespace JaggedArrray
                 // working
                 else if (end <= options.Length + 1)
                 {
-                    // 1 arg methods
-                    if (end <= 6)
-                    {
-                        Console.WriteLine(options[end - 1] + ":");
-                        JaggedArrayClient cl = new JaggedArrayClient();
-                        cl.oneArgsFunctions[end - 1](jagged);
-                    }
-                    // 2 arg methods
-                    else if (6 < end && end <= 10)
-                    {
+                    JaggedArrayClient cl = new JaggedArrayClient();
+                    if (end <= 10) {
+                        // 1 arg methods
+                        if (end <= 6) {
+                            Console.WriteLine(options[end - 1] + ":");
+                            cl.oneArgsFunctions[end - 1](jagged);
 
+                        }
+                        // 2 arg methods
+                        else
+                        {
+                            int aspect = 0;
+                            cl.ShowAspects();
+                            Console.Write("Enter chosen aspect: ");
+                            aspect = int.Parse(Console.ReadLine());
+                            // can be mistakes with misprints and string values,
+                            // but won't pay attention to this in this project
+                            cl.twoArgsFunctions[end - 1 - cl.oneArgsFunctions.Length](jagged, aspect);
+                        }
+                    
                     }
                     // no arg methods
                     else {
